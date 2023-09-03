@@ -5,9 +5,9 @@ import torchvision.transforms as tfs
 from torchvision.utils import make_grid
 from PIL import Image
 import matplotlib.pyplot as plt
+import os
 
 from ffaNet import FFA
-
 
 
 class Dehaze:
@@ -25,11 +25,12 @@ class Dehaze:
         net.load_state_dict(ckp['model'])
         return net
 
-    def dehaze(self, img_path):
-        haze = Image.open(img_path)
+    def dehaze(self, img_path, out_path):
+        haze = Image.open(img_path).convert('RGB')
         haze1 = tfs.Compose([
             tfs.ToTensor(),
-            tfs.Normalize(mean=[0.64, 0.6, 0.58],std=[0.14,0.15, 0.152])
+            tfs.Normalize(mean=[0.64, 0.6, 0.58],std=[0.14,0.15, 0.152]),
+            tfs.Resize((512,512))
         ])(haze)[None,::]
         model = self.load_model()
         model.eval()
@@ -37,11 +38,13 @@ class Dehaze:
             pred = model(haze1)
         ts = torch.squeeze(pred.clamp(0,1).cpu())
         ts = make_grid(ts, nrow=1, normalize=True)
-
         ts = np.transpose(ts, (1, 2, 0))
+        ts = ts.numpy()
+        ts = np.clip(ts, 0, 1)  
+        ts_pil = Image.fromarray((ts * 255).astype(np.uint8))
+        ts_pil.save(out_path)
+
         return ts
     
 if __name__ == "__main__":
     output = Dehaze().dehaze(img_path='test.png')
-    plt.imshow(output)
-    plt.savefig('output.png')

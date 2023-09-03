@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
     <title>HazeX</title>
 </head>
 <body>
-    <h1>Welcome to HazeX</h1>
+    <div class="my-10">
+        <center>
+            <h1 class="text-5xl font-mono">HazeX</h1>
+        <form action="/dehaze" method="post" enctype="multipart/form-data" class="my-4">
+            <input type="file" name="uploaded_file">
+            <button type="submit" value="Dehaze" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                Dehaze
+              </button>
+        </form>
+        </center>
+    </div>
+    
+    
+    {% if dehazed_image %}
+    <div class="flex flex-row justify-content-around">
+        <div>
+            <h2 class="text-xl font-bold text-center my-4">Hazy Image</h2>
+        <img src="{{ url_for('static', path='uploads/' + uploaded_filename) }}" alt="Dehazed Image" style="height: 512px; width: 512px;">
+        </div>
+        <div>
+            <h2 class="text-xl font-bold text-center my-4">Dehazed Image</h2>
+            <img src="{{ url_for('static', path='output/dehazed_output.png') }}" alt="Dehazed Image">
+        </div>
+        
+    </div>
+
+        
+    {% endif %}
 </body>
 </html>
